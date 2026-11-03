@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEBU8GR // GEEK TERMINAL</title>
+    <title>GEEK // NOTES & RESEARCH</title>
     
-    <!-- 引入极客等宽字体 -->
+    <!-- 引入 Google Fonts 极客等宽字体 -->
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,400&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
-    <!-- 引入 KaTeX (LaTeX 渲染引擎) -->
+    <!-- 引入 KaTeX (极速 LaTeX 渲染引擎) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
-    <!-- 引入 Marked.js 与代码高亮 -->
+    <!-- 引入 Marked.js (Markdown 解析) 与 Highlight.js (代码高亮) -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -21,10 +21,9 @@
     <style>
         :root {
             --bg-dark: #07090e;
-            --card-bg: rgba(12, 16, 25, 0.85);
+            --card-bg: rgba(16, 20, 30, 0.72);
             --border-glow: rgba(0, 240, 255, 0.25);
             --accent-cyan: #00f0ff;
-            --accent-green: #27c93f;
             --accent-purple: #bd00ff;
             --text-main: #e2e8f0;
             --text-muted: #94a3b8;
@@ -35,129 +34,88 @@
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Inter', -apple-system, sans-serif;
             overflow-x: hidden;
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
+        /* 1. 全屏鼠标交互背景 Canvas */
         #cyber-canvas {
             position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             z-index: 0;
             pointer-events: none;
         }
 
-        /* 首屏全屏终端容器 */
+        /* 2. 首屏 Hero 区域 */
         .hero {
             position: relative;
             z-index: 1;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px 20px;
-        }
-
-        .terminal-window {
-            width: 100%;
-            max-width: 800px;
-            background: rgba(5, 8, 13, 0.9);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 8px;
-            box-shadow: 0 0 40px rgba(0, 240, 255, 0.12), inset 0 0 20px rgba(0, 0, 0, 0.8);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 仿照图片的炫酷发光像素名横幅 */
-        .pixel-banner-box {
-            padding: 30px 20px 20px;
             text-align: center;
-            background: linear-gradient(180deg, rgba(0,240,255,0.05) 0%, transparent 100%);
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            padding: 0 20px;
         }
 
-        .pixel-name {
-            font-size: clamp(2.5rem, 7vw, 4.5rem);
-            font-weight: 900;
-            letter-spacing: 4px;
-            text-transform: uppercase;
+        .terminal-badge {
             font-family: 'JetBrains Mono', monospace;
-            background: linear-gradient(135deg, #ff5f56 0%, #ffbd2e 35%, #27c93f 70%, #00f0ff 100%);
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.08);
+            border: 1px solid var(--border-glow);
+            padding: 6px 16px;
+            border-radius: 999px;
+            margin-bottom: 24px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 50%, var(--accent-purple) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
-            filter: drop-shadow(3px 3px 0px rgba(189, 0, 255, 0.3));
+            margin-bottom: 16px;
         }
 
-        .sub-banner-text {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 8px;
-            letter-spacing: 1px;
-        }
-        .sub-banner-text span { color: var(--accent-cyan); }
-
-        /* 终端主体滚动区域 */
-        .terminal-body {
-            padding: 24px;
-            height: 320px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            font-size: 0.9rem;
-        }
-
-        .access-granted {
-            color: var(--accent-green);
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(39, 201, 63, 0.4);
-            margin-bottom: 4px;
-        }
-
-        .terminal-output {
-            color: var(--text-muted);
-            white-space: pre-wrap;
-            line-height: 1.5;
-        }
-
-        .cmd-prompt {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: rgba(0, 0, 0, 0.4);
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .terminal-input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #fff;
+        .hero p {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.95rem;
-            flex-grow: 1;
-        }
-
-        .scroll-hint {
-            margin-top: 20px;
-            font-size: 0.8rem;
             color: var(--text-muted);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.3s;
+            max-width: 600px;
+            font-size: 1rem;
+            margin-bottom: 40px;
         }
-        .scroll-hint:hover { color: var(--accent-cyan); }
 
-        /* 下滑后的 LaTeX 笔记板块 */
+        .scroll-btn {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 12px 28px;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scroll-btn:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 3. 下滑后的博客与笔记主容器 */
         .blog-section {
             position: relative;
             z-index: 1;
@@ -169,6 +127,7 @@
             gap: 32px;
         }
 
+        /* 左侧笔记目录栏 */
         .sidebar {
             position: sticky;
             top: 32px;
@@ -176,12 +135,13 @@
             background: var(--card-bg);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 20px;
         }
 
         .sidebar-title {
-            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
             color: var(--accent-cyan);
             text-transform: uppercase;
             letter-spacing: 1.5px;
@@ -204,73 +164,111 @@
             background: rgba(0, 240, 255, 0.1);
             border-left: 2px solid var(--accent-cyan);
         }
-        .note-item-title { font-size: 0.9rem; font-weight: 600; color: var(--text-main); font-family: 'Inter', sans-serif; }
-        .note-item-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .note-item-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .note-item-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
 
+        /* 右侧 Markdown + LaTeX 渲染视图 */
         .article-viewer {
             background: var(--card-bg);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 40px 48px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             min-height: 600px;
-            font-family: 'Inter', sans-serif;
         }
 
-        /* Markdown & LaTeX 排版 */
-        .markdown-body h1 { font-size: 1.8rem; margin-bottom: 12px; color: #fff; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px; }
-        .markdown-body h2 { font-size: 1.3rem; color: var(--accent-cyan); margin: 28px 0 14px; font-family: 'JetBrains Mono', monospace; }
-        .markdown-body p { margin-bottom: 14px; color: #cbd5e1; line-height: 1.7; }
-        .markdown-body code { font-family: 'JetBrains Mono', monospace; background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-        .markdown-body pre { background: #0d1117 !important; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 16px; overflow-x: auto; margin: 20px 0; }
-        .markdown-body pre code { background: none; color: inherit; padding: 0; }
-        .markdown-body blockquote { border-left: 3px solid var(--accent-purple); background: rgba(189, 0, 255, 0.06); padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 20px 0; color: #d8b4fe; }
-        .katex-display { overflow-x: auto; padding: 10px 0; margin: 16px 0 !important; background: rgba(0, 0, 0, 0.25); border-radius: 6px; }
+        /* 笔记内部排版美化 */
+        .markdown-body h1 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 16px;
+        }
+        .markdown-body h2 {
+            font-size: 1.4rem;
+            color: var(--accent-cyan);
+            margin: 32px 0 16px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .markdown-body h3 { font-size: 1.15rem; margin: 24px 0 12px; color: #fff; }
+        .markdown-body p { margin-bottom: 16px; color: #cbd5e1; }
+        .markdown-body code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--accent-cyan);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .markdown-body pre {
+            background: #0d1117 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        .markdown-body pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        .markdown-body blockquote {
+            border-left: 3px solid var(--accent-purple);
+            background: rgba(189, 0, 255, 0.06);
+            padding: 12px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            color: #d8b4fe;
+        }
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 12px 0;
+            margin: 20px 0 !important;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
         @media (max-width: 860px) {
             .blog-section { grid-template-columns: 1fr; }
             .sidebar { position: static; }
             .article-viewer { padding: 24px; }
-            .terminal-window { max-width: 95vw; }
         }
     </style>
 </head>
 <body>
 
+    <!-- 背景交互画布 -->
     <canvas id="cyber-canvas"></canvas>
 
+    <!-- 首屏展示 -->
     <section class="hero">
-        <div class="terminal-window">
-            <!-- 像素艺术风的名字展示区（可在下方修改文字） -->
-            <div class="pixel-banner-box">
-                <div class="pixel-name">DEBU8GR</div>
-                <div class="sub-banner-text">root@debu8gr:<span>~</span> am // rootkit active</div>
-            </div>
-
-            <!-- 终端交互输出区 -->
-            <div class="terminal-body" id="terminal-body">
-                <div class="access-granted">[ACCESS GRANTED] root@debu8gr:~$ ./blog --boot --theme=terminal</div>
-                <div class="terminal-output">type <span style="color:var(--accent-cyan)">help</span> to list commands</div>
-                <div id="terminal-history"></div>
-            </div>
-
-            <!-- 命令行输入区 -->
-            <div class="cmd-prompt">
-                <span style="color: var(--accent-green)">guest@visitor:~$</span>
-                <input type="text" id="terminal-input" class="terminal-input" autofocus autocomplete="off" spellcheck="false" placeholder="输入 help 或 ls 查看路由...">
-            </div>
-        </div>
-
-        <a href="#notes-container" class="scroll-hint">
-            <span>↓ 向下滚动进入 LaTeX 笔记存档</span>
+        <div class="terminal-badge">~/workspace/notes $ status --online</div>
+        <h1>THEORETICAL & CODE NOTES</h1>
+        <p>First-principles derivations, multimodal representations, and mathematical foundations.</p>
+        <a href="#notes-container" class="scroll-btn">
+            <span>EXPLORE ARCHIVES</span>
+            <span>↓</span>
         </a>
     </section>
 
-    <!-- 下滑：LaTeX 笔记专区 -->
+    <!-- 下滑后的博客/笔记区域 -->
     <main id="notes-container" class="blog-section">
         <aside class="sidebar">
-            <div class="sidebar-title">// 目录 / Routes</div>
+            <div class="sidebar-title">// DIRECTORY</div>
             <ul class="note-list" id="note-list"></ul>
         </aside>
         <article class="article-viewer">
@@ -280,137 +278,99 @@
 
     <script>
         /* =========================================================
-         * 1. 笔记数据存放区
+         * 模块 1：配置你的笔记数据（支持直接内联或填写外部 .md 文件路径）
          * ========================================================= */
         const NOTES_DATA = [
             {
+                id: "note-1",
                 title: "Information Bottleneck & Representation",
                 date: "2026-11-03",
                 tag: "Theory",
+                // 如果你在仓库新建了 posts/note1.md，只需写 file: "posts/note1.md"
                 content: `# Information Bottleneck & Parsimonious Representation
 
-在表示学习中，我们希望从高维观测数据 $X \\in \\mathbb{R}^D$ 中提取低维紧致特征 $Z \\in \\mathbb{R}^d$，使得 $Z$ 最大限度保留关于目标变量 $Y$ 的预测信息。
+在表示学习（Representation Learning）中，我们希望从高维观测数据 $X \\in \\mathbb{R}^D$ 中提取低维紧致特征 $Z \\in \\mathbb{R}^d$（其中 $d \\ll D$），使得 $Z$ 最大限度保留关于目标变量 $Y$ 的预测信息，同时剔除冗余噪声。
 
-## 1. 变分信息瓶颈目标函数
+## 1. 变分信息瓶颈 (Variational Information Bottleneck)
+
+信息瓶颈（IB）的目标函数定义为最大化互信息项与压缩正则项的权衡：
 
 $$
 \\mathcal{L}_{\\text{IB}}(\\theta) = I(Z; Y) - \\beta I(Z; X)
 $$
 
-利用变分下界转化为可优化损失：
+其中 $\\beta > 0$ 为控制压缩率与任务表征能力的拉格朗日乘子。利用变分下界（Variational Lower Bound），我们可以将上式转化为可微分的损失函数：
 
 $$
 \\mathcal{L}_{\\text{VIB}} = \\mathbb{E}_{q_\\theta(z|x)} [\\log p_\\phi(y|z)] - \\beta \\, D_{\\text{KL}}\\left(q_\\theta(z|x) \\,\\|\\, r(z)\\right)
 $$
+
+> **核心直觉**：当编码分布 $q_\\theta(z|x)$ 趋向于先验分布 $r(z) = \\mathcal{N}(0, I)$ 时，特征空间满足最小充分统计量（Minimal Sufficient Statistic）性质。
+
+## 2. 编码率缩减 (Coding Rate Reduction)
+
+对于无监督与自监督场景，给定特征矩阵 $Z = [z_1, z_2, \\dots, z_m] \\in \\mathbb{R}^{d \\times m}$，在高斯失真度 $\\epsilon^2$ 下所需的平均比特数（Coding Rate）可由以下行列式解析表达：
+
+$$
+R(Z, \\epsilon) = \\frac{1}{2} \\log \\det \\left( I + \\frac{d}{m \\epsilon^2} Z Z^\\top \\right)
+$$
+
+\`\`\`python
+import torch
+
+def coding_rate(Z: torch.Tensor, eps: float = 0.1) -> torch.Tensor:
+    """计算特征矩阵 Z 的编码率 R(Z, eps)"""
+    m, d = Z.shape
+    I = torch.eye(d, device=Z.device)
+    cov = (d / (m * eps ** 2)) * (Z.T @ Z)
+    return 0.5 * torch.logdet(I + cov)
+\`\`\`
 `
             },
             {
-                title: "Newton-Raphson Optimization Dynamics",
+                id: "note-2",
+                title: "Optimization & Newton-Raphson Dynamics",
                 date: "2026-10-28",
                 tag: "Math",
                 content: `# Numerical Optimization in Logistic Regression
 
-二分类条件概率由 Sigmoid 函数给出：
+考虑二分类对数几率回归，给定数据集 $\\{(x_i, y_i)\\}_{i=1}^N$，其中 $y_i \\in \\{0, 1\\}$，条件概率由 Sigmoid 函数给出：
 
 $$
 p(y_i = 1 \\mid x_i; w) = \\sigma(w^\\top x_i) = \\frac{1}{1 + e^{-w^\\top x_i}}
 $$
 
-二阶海森矩阵 (Hessian Matrix)：
+## 二阶海森矩阵 (Hessian Matrix) 推导
+
+负对数似然损失函数（交叉熵）写为：
 
 $$
-H(w) = X^\\top S X
+\\ell(w) = -\\sum_{i=1}^N \\left[ y_i \\log \\mu_i + (1 - y_i) \\log(1 - \\mu_i) \\right], \\quad \\mu_i = \\sigma(w^\\top x_i)
+$$
+
+对其求一阶梯度 $\\nabla \\ell(w)$ 与二阶海森矩阵 $H(w) = \\nabla^2 \\ell(w)$：
+
+$$
+\\nabla \\ell(w) = X^\\top (\\mu - y), \\qquad H(w) = X^\\top S X
+$$
+
+其中对角权重矩阵 $S = \\text{diag}(\\mu_1(1-\\mu_1), \\dots, \\mu_N(1-\\mu_N))$ 正定，保证了目标函数严格凸性，牛顿法迭代更新公式即等价于迭代重加权最小二乘（IRLS）：
+
+$$
+w^{(t+1)} = w^{(t)} - \\left(X^\\top S^{(t)} X\\right)^{-1} X^\\top (\\mu^{(t)} - y)
 $$
 `
             }
         ];
 
         /* =========================================================
-         * 2. 终端交互逻辑
-         * ========================================================= */
-        const terminalHistory = document.getElementById('terminal-history');
-        const terminalInput = document.getElementById('terminal-input');
-        const terminalBody = document.getElementById('terminal-body');
-
-        const routesText = `routes:
-  /home
-  /posts (支持 LaTeX 渲染)
-  /archives
-  /categories
-  /tags
-  /about`;
-
-        const helpText = `可用命令列表：
-  help         - 显示帮助信息
-  ls           - 列出所有路由板块
-  cat readme   - 查看个人简介
-  cat notes    - 平滑滚动到下方查看 LaTeX 笔记
-  clear        - 清空终端屏幕`;
-
-        const aboutText = `[ABOUT ME]
-- ID: DEBU8GR
-- Focus: Multimodal Models & First-Principles Theory
-- Status: Hacking & Researching`;
-
-        function appendToTerminal(cmd, output) {
-            const div = document.createElement('div');
-            div.style.marginBottom = '8px';
-            div.innerHTML = `<span style="color:var(--accent-green)">guest@visitor:~$</span> <span style="color:#fff">${cmd}</span>`;
-            
-            const outDiv = document.createElement('div');
-            outDiv.className = 'terminal-output';
-            outDiv.textContent = output;
-            div.appendChild(outDiv);
-            terminalHistory.appendChild(div);
-            terminalBody.scrollTop = terminalBody.scrollHeight;
-        }
-
-        terminalInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const cmd = terminalInput.value.trim();
-                terminalInput.value = '';
-                if (cmd === '') return;
-
-                if (cmd === 'clear') {
-                    terminalHistory.innerHTML = '';
-                    return;
-                }
-
-                let response = '';
-                switch(cmd.toLowerCase()) {
-                    case 'help':
-                        response = helpText;
-                        break;
-                    case 'ls':
-                    case 'dir':
-                        response = routesText;
-                        break;
-                    case 'cat readme':
-                    case 'cat about':
-                        response = aboutText;
-                        break;
-                    case 'cat notes':
-                    case '/posts':
-                        response = "正在跳转至 LaTeX 笔记区...";
-                        document.getElementById('notes-container').scrollIntoView({ behavior: 'smooth' });
-                        break;
-                    case 'hello':
-                        response = "Hello, hacker! Welcome to my site.";
-                        break;
-                    default:
-                        response = `command not found: ${cmd}. try 'help'`;
-                }
-                appendToTerminal(cmd, response);
-            }
-        });
-
-        /* =========================================================
-         * 3. 笔记渲染逻辑
+         * 模块 2：渲染笔记列表与 LaTeX 公式
          * ========================================================= */
         const noteListEl = document.getElementById('note-list');
         const contentEl = document.getElementById('markdown-content');
 
         async function loadNote(index) {
+            // 更新选中状态
             document.querySelectorAll('.note-item').forEach((el, i) => {
                 el.classList.toggle('active', i === index);
             });
@@ -418,18 +378,34 @@ $$
             const note = NOTES_DATA[index];
             let rawMarkdown = note.content;
 
+            // 如果配置了外部 .md 文件路径，则通过 fetch 拉取仓库里的 .md 文件
+            if (note.file) {
+                try {
+                    const res = await fetch(note.file);
+                    rawMarkdown = await res.text();
+                } catch (e) {
+                    rawMarkdown = `# Error Loading File\n无法读取 \`${note.file}\`，请确认文件路径是否正确。`;
+                }
+            }
+
+            // 保护 LaTeX 公式不被 Marked.js 破坏下划线和星号
             const mathBlocks = [];
             const protectedMd = rawMarkdown.replace(/(\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$)/g, (match) => {
                 mathBlocks.push(match);
                 return `@@MATH_BLOCK_${mathBlocks.length - 1}@@`;
             });
 
+            // 解析 Markdown
             let html = marked.parse(protectedMd);
+
+            // 还原 LaTeX 块
             html = html.replace(/@@MATH_BLOCK_(\d+)@@/g, (_, idx) => mathBlocks[Number(idx)]);
             contentEl.innerHTML = html;
 
+            // 语法高亮
             document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
 
+            // 渲染 KaTeX 数学公式
             if (window.renderMathInElement) {
                 renderMathInElement(contentEl, {
                     delimiters: [
@@ -441,6 +417,7 @@ $$
             }
         }
 
+        // 初始化左侧菜单
         NOTES_DATA.forEach((note, index) => {
             const li = document.createElement('li');
             li.className = 'note-item';
@@ -452,19 +429,28 @@ $$
             noteListEl.appendChild(li);
         });
 
-        window.addEventListener('DOMContentLoaded', () => setTimeout(() => loadNote(0), 100));
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => loadNote(0), 100);
+        });
 
         /* =========================================================
-         * 4. 炫彩鼠标 Canvas 背景动效（保留）
+         * 模块 3：炫彩科技感鼠标跟随粒子网络 (HTML5 Canvas)
          * ========================================================= */
         const canvas = document.getElementById('cyber-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles;
-        let hue = 185;
+        let hue = 185; // 初始青色色相
+
         const mouse = { x: -1000, y: -1000, radius: 160 };
 
-        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        window.addEventListener('mouseout', () => { mouse.x = -1000; mouse.y = -1000; });
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+        window.addEventListener('mouseout', () => {
+            mouse.x = -1000;
+            mouse.y = -1000;
+        });
 
         function resize() {
             width = canvas.width = window.innerWidth;
@@ -482,11 +468,15 @@ $$
                 this.colorOffset = Math.random() * 60;
             }
             update() {
-                this.x += this.vx; this.y += this.vy;
+                this.x += this.vx;
+                this.y += this.vy;
+
                 if (this.x < 0 || this.x > width) this.vx *= -1;
                 if (this.y < 0 || this.y > height) this.vy *= -1;
 
-                const dx = mouse.x - this.x, dy = mouse.y - this.y;
+                // 鼠标交互：引力吸附 + 能量高亮
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < mouse.radius) {
                     const force = (mouse.radius - dist) / mouse.radius;
@@ -508,10 +498,13 @@ $$
         }
 
         function animate() {
+            // 制造轻微拖尾流光感
             ctx.fillStyle = 'rgba(7, 9, 14, 0.28)';
             ctx.fillRect(0, 0, width, height);
-            hue = (hue + 0.35) % 360;
 
+            hue = (hue + 0.35) % 360; // 动态流光变色
+
+            // 鼠标光晕中心
             if (mouse.x > 0) {
                 const grad = ctx.createRadialGradient(mouse.x, mouse.y, 2, mouse.x, mouse.y, 180);
                 grad.addColorStop(0, `hsla(${hue}, 100%, 60%, 0.18)`);
@@ -525,9 +518,13 @@ $$
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
                 particles[i].draw();
+
+                // 粒子间神经网络连线
                 for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
+
                     if (dist < 125) {
                         const alpha = (1 - dist / 125) * 0.45;
                         ctx.strokeStyle = `hsla(${(hue + particles[i].colorOffset) % 360}, 100%, 65%, ${alpha})`;
@@ -537,6 +534,20 @@ $$
                         ctx.lineTo(particles[j].x, particles[j].y);
                         ctx.stroke();
                     }
+                }
+
+                // 粒子与鼠标的激光连线
+                const mDx = particles[i].x - mouse.x;
+                const mDy = particles[i].y - mouse.y;
+                const mDist = Math.sqrt(mDx * mDx + mDy * mDy);
+                if (mDist < mouse.radius) {
+                    const alpha = (1 - mDist / mouse.radius) * 0.85;
+                    ctx.strokeStyle = `hsla(${(hue + 40) % 360}, 100%, 70%, ${alpha})`;
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
                 }
             }
             requestAnimationFrame(animate);
