@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEEK // NOTES & RESEARCH</title>
-    
+    <title>NOTES & RESEARCH</title>
+
+    <link rel="icon" type="image/png" href="https://github.com/wizandred.png">
+
     <!-- 引入 Google Fonts 极客等宽字体 -->
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,400&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
@@ -115,16 +117,18 @@
             transform: translateY(-2px);
         }
 
-        /* 3. 下滑后的博客与笔记主容器 */
+        /* 下滑后的博客与笔记主容器：自适应居中 */
         .blog-section {
             position: relative;
             z-index: 1;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 80px 24px 120px;
+            width: 70vw;              /* 核心：直接占视口宽度的 70% */
+            max-width: 1600px;        /* 超宽带鱼屏防过度拉伸保护 */
+            min-width: 900px;         /* 中等屏幕保护 */
+            margin: 0 auto;           /* 水平绝对居中 */
+            padding: 80px 0 120px;
             display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 32px;
+            grid-template-columns: 300px minmax(0, 1fr); /* 左侧目录固定300px，右侧撑满剩余所有空间 */
+            gap: 36px;
         }
 
         /* 左侧笔记目录栏 */
@@ -176,15 +180,26 @@
             margin-top: 4px;
         }
 
-        /* 右侧 Markdown + LaTeX 渲染视图 */
         .article-viewer {
             background: var(--card-bg);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
-            padding: 40px 48px;
+            padding: 48px 56px;       /* 增加内边距，提升呼吸感 */
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            min-height: 600px;
+            min-height: 700px;
+            width: 100%;
+        }
+
+        /* 移动端/窄屏降级适配 */
+        @media (max-width: 1024px) {
+            .blog-section {
+                width: 92vw;
+                min-width: unset;
+                grid-template-columns: 1fr;
+            }
+            .sidebar { position: static; }
+            .article-viewer { padding: 28px 24px; }
         }
 
         /* 笔记内部排版美化 */
@@ -256,7 +271,7 @@
 
     <!-- 首屏展示 -->
     <section class="hero">
-        <div class="terminal-badge">~/workspace/notes $ status --online</div>
+        <div class="terminal-badge">wizandre</div>
         <h1>THEORETICAL & CODE NOTES</h1>
         <p>First-principles derivations, multimodal representations, and mathematical foundations.</p>
         <a href="#notes-container" class="scroll-btn">
