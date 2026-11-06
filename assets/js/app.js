@@ -152,6 +152,7 @@
   function finishBoot() {
     if(!bootActive) return;
     bootActive=false; clearInterval(bootTimer);
+    if(window.sitePageTitle) window.sitePageTitle.setBooting(false);
     safeStore.set('wizandre:boot:v1','done',true);
     const loader=$('#boot-loader'); loader.classList.add('exiting');
     document.body.style.overflow='';
@@ -162,6 +163,7 @@
     if(bootActive || (!force && (!config.bootEnabled || reducedMotion.matches || (config.bootOncePerSession && safeStore.get('wizandre:boot:v1',true))))) return;
     if(reducedMotion.matches&&force) { toast('已启用减少动态效果，启动动画已跳过。'); return; }
     bootActive=true; previousFocus=document.activeElement;
+    if(window.sitePageTitle) window.sitePageTitle.setBooting(true);
     $('#boot-loader').hidden=false; $('#boot-log').textContent='[ .. ]  initializing notes workspace'; $('#boot-progress').style.width='0%'; $('#boot-status').textContent='正在初始化笔记空间…';
     document.body.style.overflow='hidden';
     document.querySelector('main').inert=true; $('.site-header').inert=true; $('.site-footer').inert=true;

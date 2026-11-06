@@ -128,7 +128,6 @@ window.createNotesReader = function () {
     content.classList.remove('raw-markdown'); content.textContent='正在加载笔记…'; status.textContent=''; rawButton.disabled=true;
     document.getElementById('article-path').textContent = note.file || 'notes/' + note.id + '.md';
     document.getElementById('article-meta').textContent = (note.tag || '').toUpperCase() + (note.date ? ' · ' + note.date : '');
-    document.title = note.title + ' — NOTES & RESEARCH';
     try {
       if (note.kind === 'html') {
         lastMarkdown = ''; content.classList.remove('raw-markdown'); content.textContent = ''; rawButton.disabled=false;
