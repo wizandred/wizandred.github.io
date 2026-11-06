@@ -1,4 +1,12 @@
-:root{color-scheme:dark;--bg:#07090e;--panel:#0c1018;--line:#202734;--text:#e2e8f0;--muted:#8d9bad;--cyan:#00f0ff;--purple:#bd00ff;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;--sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft Yahei",sans-serif}
+/* 本地可变字体：统一代码与导航字形，不依赖在线字体服务。 */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/JetBrainsMono-Variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+}
+:root{color-scheme:dark;--bg:#07090e;--panel:#0c1018;--line:#202734;--text:#e2e8f0;--muted:#8d9bad;--cyan:#00f0ff;--purple:#bd00ff;--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",monospace;--pixel-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;--sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft Yahei",sans-serif}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.7}button,input,select,textarea{font:inherit}button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}button,a{touch-action:manipulation}button{cursor:pointer}button{color:inherit}a{color:inherit;text-decoration:none}button{border:0}button:disabled{cursor:default}::selection{background:#226265;color:#fff}:focus-visible{outline:2px solid var(--cyan);outline-offset:5px}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline-offset:3px}[hidden]{display:none!important}.mono{font-family:var(--mono)}.muted{color:var(--muted)}.cyan{color:var(--cyan)}.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0)}.skip-link{position:fixed;top:-100px;left:20px;z-index:150;padding:10px 20px;background:var(--cyan);color:#07131a}.skip-link:focus{top:12px}
 #cyber-canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:-1}
 .site-header{position:sticky;top:0;z-index:20;background:#07090ee6;backdrop-filter:blur(18px);border-bottom:1px solid #ffffff0b}.header-inner{max-width:1320px;margin:auto;height:76px;padding:0 48px;display:flex;align-items:center;gap:28px}.brand{font:12px var(--mono);display:flex;align-items:center;gap:12px;white-space:nowrap}.brand b{font-weight:500}.brand-mark{font-size:22px;color:var(--cyan);margin-right:5px}.brand-path{color:var(--muted)}.cursor{font-size:13px;color:var(--cyan);animation:blink 1.3s steps(2,start) infinite}.site-header nav{margin-left:auto;display:flex;gap:32px;align-items:center;font:11px var(--mono)}.nav-link{color:var(--muted);padding:26px 0;position:relative;transition:color .2s}.nav-link:hover,.nav-link.active{color:var(--text)}.nav-link.active::after{content:"";position:absolute;bottom:17px;left:0;width:15px;height:2px;background:var(--cyan)}.count{font-size:9px;color:#a9b5c7;margin-left:4px;vertical-align:top}.github-link span{color:var(--cyan);margin-left:5px}.icon-button{background:transparent;border:1px solid var(--line);width:34px;height:34px;border-radius:6px;position:relative;display:grid;place-items:center;font:13px var(--mono);flex-shrink:0}.icon-button:hover{border-color:var(--cyan);color:var(--cyan)}.settings-dot{position:absolute;right:5px;top:5px;width:3px;height:3px;background:var(--cyan);border-radius:50%}
@@ -110,3 +118,74 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .terminal-repository-preview .repository-icon{font-size:10px}.terminal-repository-preview .repository-badge{font-size:6px;margin-left:5px;padding:0 3px}.terminal-repository-preview .repository-arrow{font-size:8px}
 .terminal-preview-more{border:1px solid #bd00ff30;border-radius:4px;background:#bd00ff08;color:#bb9cd2;font:8px var(--mono);padding:5px 7px}
 @media(max-width:680px){.terminal-repository-preview{padding:8px 13px 0;gap:6px}.terminal-repository-preview .repo-terminal-link{font-size:8px}}
+
+
+/* 字体层级：命令 / 目录 / 仓库使用同一套等宽字体。 */
+.terminal,
+.sidebar {
+  font-family: var(--mono);
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0, "zero" 1;
+  font-variant-numeric: tabular-nums;
+}
+.ascii-logo { font-family: var(--pixel-mono); }
+.terminal .window-head { font-size: 10px; font-weight: 500; }
+.terminal-label { font-size: 9px; letter-spacing: .08em; }
+.terminal-context { font-size: 10px; line-height: 1.7; }
+.shell-chip { font-size: 9px; font-weight: 500; letter-spacing: .06em; }
+.shell-path { font-size: 10px; letter-spacing: 0; }
+.terminal .terminal-body { font: 400 12px/1.9 var(--mono); }
+.terminal-output > .cyan { font-size: 12px; font-weight: 500; line-height: 1.9; }
+.terminal-form { align-items: baseline; gap: 10px; }
+.prompt,
+#terminal-input { font: 500 13px/1.85 var(--mono); letter-spacing: 0; }
+#terminal-input { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0, "zero" 1; }
+#terminal-input::placeholder { font-family: inherit; font-weight: 400; color: #8192a7; opacity: .85; }
+.terminal-shortcuts { font-size: 10px; line-height: 1.6; }
+.terminal-counter { font-size: 8px; letter-spacing: .04em; }
+.keyboard-hint { font-size: 8px; }
+.sidebar-title,
+.repository-section .sidebar-title { font: 500 11px/1.6 var(--mono); letter-spacing: .08em; }
+.directory-path { font: 400 11px/1.8 var(--mono); }
+.note-item-title { font: 500 12.5px/1.85 var(--mono); letter-spacing: -.015em; }
+.note-item-meta { font: 400 10px/1.8 var(--mono); letter-spacing: 0; }
+.category-link { font: 400 11px/1.7 var(--mono); letter-spacing: 0; }
+.repository-link { font: 500 12px/1.8 var(--mono); }
+.repository-name { letter-spacing: -.01em; }
+.repository-icon,
+.repository-arrow { font-family: var(--mono); line-height: 1; }
+.repository-badge { font: 500 8px/1.6 var(--mono); letter-spacing: .04em; }
+.repository-caption { font: 400 10px/1.85 var(--mono); }
+.repo-terminal-link { font: 400 12px/1.8 var(--mono); }
+.terminal-repo-result p { font-size: 11px; line-height: 1.85; }
+.terminal-preview-label { font-size: 8px; letter-spacing: .08em; }
+.terminal-repository-preview .repo-terminal-link { font: 400 10px/1.5 var(--mono); }
+.terminal-repository-preview .repository-badge { font-size: 7px; }
+.terminal-preview-more { font-size: 10px; }
+.article-toolbar { font-family: var(--mono); font-size: 10px; font-variant-numeric: tabular-nums; }
+.markdown-body code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+.markdown-body pre code { font-size: 12.5px; line-height: 1.85; }
+@media (max-width: 680px) {
+  .terminal .window-head { font-size: 9px; }
+  .terminal-label { font-size: 8px; }
+  .terminal-context { font-size: 9px; }
+  .shell-chip { font-size: 8px; }
+  .shell-path { font-size: 9px; }
+  .terminal .terminal-body { font-size: 12px; line-height: 1.85; }
+  .terminal-output > .cyan { font-size: 11.5px; }
+  /* 输入与提示符保持同一字号，同时避免手机浏览器聚焦时自动放大。 */
+  .prompt,
+  #terminal-input { font-size: 16px; line-height: 1.8; }
+  .terminal-form { gap: 8px; }
+  .terminal-shortcuts { font-size: 9px; }
+  .terminal-shortcuts > div { gap: 12px; }
+  .terminal-counter { font-size: 8px; }
+  .note-item-title { font-size: 13px; line-height: 1.8; }
+  .note-item-meta { font-size: 10px; }
+  .category-link { font-size: 11px; }
+  .repository-link { font-size: 13px; }
+  .repo-terminal-link { font-size: 12px; }
+  .terminal-repository-preview .repo-terminal-link { font-size: 10px; }
+  .repository-badge { font-size: 8px; }
+  .article-toolbar { font-size: 9px; }
+}
