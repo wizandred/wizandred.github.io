@@ -1,576 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOTES & RESEARCH</title>
-
-    <link rel="icon" type="image/png" href="https://github.com/wizandred.png">
-
-    <!-- 引入 Google Fonts 极客等宽字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,400&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <!-- 引入 KaTeX (极速 LaTeX 渲染引擎) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-
-    <!-- 引入 Marked.js (Markdown 解析) 与 Highlight.js (代码高亮) -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
-    <style>
-        :root {
-            --bg-dark: #07090e;
-            --card-bg: rgba(16, 20, 30, 0.72);
-            --border-glow: rgba(0, 240, 255, 0.25);
-            --accent-cyan: #00f0ff;
-            --accent-purple: #bd00ff;
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', -apple-system, sans-serif;
-            overflow-x: hidden;
-            line-height: 1.7;
-        }
-
-        /* 1. 全屏鼠标交互背景 Canvas */
-        #cyber-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* 2. 首屏 Hero 区域 */
-        .hero {
-            position: relative;
-            z-index: 1;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 20px;
-        }
-
-        .terminal-badge {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--accent-cyan);
-            background: rgba(0, 240, 255, 0.08);
-            border: 1px solid var(--border-glow);
-            padding: 6px 16px;
-            border-radius: 999px;
-            margin-bottom: 24px;
-            letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
-        }
-
-        .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
-            font-weight: 800;
-            letter-spacing: -1px;
-            background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 50%, var(--accent-purple) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 16px;
-        }
-
-        .hero p {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-muted);
-            max-width: 600px;
-            font-size: 1rem;
-            margin-bottom: 40px;
-        }
-
-        .scroll-btn {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-main);
-            text-decoration: none;
-            padding: 12px 28px;
-            border: 1px solid var(--border-glow);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(8px);
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .scroll-btn:hover {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        /* 下滑后的博客与笔记主容器：自适应居中 */
-        .blog-section {
-            position: relative;
-            z-index: 1;
-            width: 70vw;              /* 核心：直接占视口宽度的 70% */
-            max-width: 1600px;        /* 超宽带鱼屏防过度拉伸保护 */
-            min-width: 900px;         /* 中等屏幕保护 */
-            margin: 0 auto;           /* 水平绝对居中 */
-            padding: 80px 0 120px;
-            display: grid;
-            grid-template-columns: 300px minmax(0, 1fr); /* 左侧目录固定300px，右侧撑满剩余所有空间 */
-            gap: 36px;
-        }
-
-        /* 左侧笔记目录栏 */
-        .sidebar {
-            position: sticky;
-            top: 32px;
-            height: fit-content;
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .sidebar-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .note-list { list-style: none; }
-        .note-item {
-            padding: 10px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 6px;
-            border-left: 2px solid transparent;
-        }
-        .note-item:hover { background: rgba(255, 255, 255, 0.05); }
-        .note-item.active {
-            background: rgba(0, 240, 255, 0.1);
-            border-left: 2px solid var(--accent-cyan);
-        }
-        .note-item-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-        .note-item-meta {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .article-viewer {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 48px 56px;       /* 增加内边距，提升呼吸感 */
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            min-height: 700px;
-            width: 100%;
-        }
-
-        /* 移动端/窄屏降级适配 */
-        @media (max-width: 1024px) {
-            .blog-section {
-                width: 92vw;
-                min-width: unset;
-                grid-template-columns: 1fr;
-            }
-            .sidebar { position: static; }
-            .article-viewer { padding: 28px 24px; }
-        }
-
-        /* 笔记内部排版美化 */
-        .markdown-body h1 {
-            font-size: 2rem;
-            margin-bottom: 12px;
-            color: #fff;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 16px;
-        }
-        .markdown-body h2 {
-            font-size: 1.4rem;
-            color: var(--accent-cyan);
-            margin: 32px 0 16px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .markdown-body h3 { font-size: 1.15rem; margin: 24px 0 12px; color: #fff; }
-        .markdown-body p { margin-bottom: 16px; color: #cbd5e1; }
-        .markdown-body code {
-            font-family: 'JetBrains Mono', monospace;
-            background: rgba(0, 240, 255, 0.1);
-            color: var(--accent-cyan);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-        .markdown-body pre {
-            background: #0d1117 !important;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 16px;
-            overflow-x: auto;
-            margin: 20px 0;
-        }
-        .markdown-body pre code {
-            background: none;
-            color: inherit;
-            padding: 0;
-        }
-        .markdown-body blockquote {
-            border-left: 3px solid var(--accent-purple);
-            background: rgba(189, 0, 255, 0.06);
-            padding: 12px 20px;
-            border-radius: 0 8px 8px 0;
-            margin: 20px 0;
-            color: #d8b4fe;
-        }
-        .katex-display {
-            overflow-x: auto;
-            overflow-y: hidden;
-            padding: 12px 0;
-            margin: 20px 0 !important;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        @media (max-width: 860px) {
-            .blog-section { grid-template-columns: 1fr; }
-            .sidebar { position: static; }
-            .article-viewer { padding: 24px; }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07090e">
+  <meta name="description" content="wizandre 的理论与代码笔记：第一性原理推导、多模态表征与数学基础。">
+  <title>NOTES & RESEARCH — wizandre</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/katex.min.css">
+  <link rel="stylesheet" href="assets/vendor/tokyo-night-dark.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="notes/index.js"></script>
+  <script defer src="assets/vendor/marked.min.js"></script>
+  <script defer src="assets/vendor/purify.min.js"></script>
+  <script defer src="assets/vendor/highlight.min.js"></script>
+  <script defer src="assets/vendor/katex.min.js"></script>
+  <script defer src="assets/vendor/auto-render.min.js"></script>
+  <script defer src="assets/js/reader.js"></script>
+  <script defer src="assets/js/repositories.js"></script>
+  <script defer src="assets/js/repo-links.js"></script>
+  <script defer src="assets/js/app.js"></script>
+  <script defer src="assets/js/background.js"></script>
+  <script defer src="assets/js/reader-fallback.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#notes-container">跳至笔记内容</a>
+  <canvas id="cyber-canvas" aria-hidden="true"></canvas>
 
-    <!-- 背景交互画布 -->
-    <canvas id="cyber-canvas"></canvas>
+  <section id="boot-loader" class="boot-loader" aria-label="终端启动" hidden>
+    <div class="boot-panel">
+      <div class="window-head"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>wizandre — boot session</span><span>01</span></div>
+      <div class="boot-body">
+        <p class="boot-prompt">root@wizandre<span>:~$ ./initialize</span></p>
+        <pre id="boot-log" aria-hidden="true"></pre>
+        <div class="boot-progress" aria-hidden="true"><span id="boot-progress"></span></div>
+        <div class="boot-bottom"><span id="boot-status" role="status">正在初始化笔记空间…</span><button id="skip-boot" type="button">跳过启动 ↵</button></div>
+      </div>
+    </div>
+  </section>
 
-    <!-- 首屏展示 -->
-    <section class="hero">
-        <div class="terminal-badge">wizandre</div>
-        <h1>THEORETICAL & CODE NOTES</h1>
-        <p>First-principles derivations, multimodal representations, and mathematical foundations.</p>
-        <a href="#notes-container" class="scroll-btn">
-            <span>EXPLORE ARCHIVES</span>
-            <span>↓</span>
-        </a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="wizandre 首页"><span class="brand-mark">&gt;_</span><span><b>root@wizandre</b><span class="brand-path">:~</span></span><span class="cursor" aria-hidden="true">▌</span></a>
+      <nav aria-label="主导航">
+        <a class="nav-link active" href="#top">~/home</a>
+        <a class="nav-link" href="#notes-container">./archives <span class="count">02</span></a>
+        <a class="nav-link github-link" href="https://github.com/wizandred" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+      </nav>
+      <button id="replay-boot" class="icon-button" type="button" aria-label="重播加载动画" title="重播加载动画">↻</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-meta mono"><span><span class="status-dot"></span> PERSONAL KNOWLEDGE SPACE</span><span class="hero-meta-right">THEORY / CODE / EXPLORATION</span></div>
+      <div class="hero-inner">
+        <p class="session-line mono"><span class="access">[ACCESS GRANTED]</span> root@wizandre:~$ <span class="muted">./notes --from-first-principles</span></p>
+        <div class="ascii-wrap"><pre id="ascii-logo" class="ascii-logo" role="img" aria-label="WIZANDRE ASCII 像素艺术字">WIZANDRE</pre></div>
+        <div class="terminal-badge mono"><span class="status-dot"></span> wizandre <span class="badge-divider">/</span> notes & research</div>
+        <h1 id="hero-title">THEORETICAL &amp; CODE NOTES</h1>
+        <p class="hero-description">First-principles derivations, multimodal representations,<br class="desktop-break"> and mathematical foundations.</p>
+
+        <section class="terminal" aria-label="交互式终端导航">
+          <div class="window-head"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>guest@wizandre: ~</span><span class="terminal-label">NOTES.SH <span class="shell-version">/ v3</span></span></div>
+          <div class="terminal-context"><span class="shell-chip"><span class="status-dot"></span> READ ONLY</span><span id="terminal-location" class="shell-path">~/notes</span><span class="shell-signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div id="terminal-repository-preview" class="terminal-repository-preview" aria-label="仓库快捷入口"></div>
+          <div class="terminal-body">
+            <div id="terminal-output" class="terminal-output" role="log" aria-live="polite" aria-relevant="additions"><p><span class="terminal-comment">// 欢迎来到我的笔记空间。</span> 输入 <button class="inline-command" type="button" data-command="help">help</button> 查看命令，或 <button class="inline-command" type="button" data-command="ls">ls</button> 浏览目录，<button class="inline-command" type="button" data-command="repos">repos</button> 连接项目。</p></div>
+            <form id="terminal-form" class="terminal-form" autocomplete="off">
+              <label for="terminal-input" class="prompt"><span>guest@wizandre</span><span class="prompt-path">:~$</span></label>
+              <input id="terminal-input" name="command" type="text" placeholder="试试 cd archives" aria-label="终端命令" spellcheck="false" autocapitalize="off" enterkeyhint="go">
+              <span class="enter-hint" aria-hidden="true">↵</span>
+            </form>
+          </div>
+          <div class="terminal-shortcuts"><div><button type="button" data-command="help"><span>?</span> help</button><button type="button" data-command="ls"><span>≡</span> ls</button><button type="button" data-command="repos"><span>◇</span> repos</button><button type="button" data-command="whoami"><span>◎</span> whoami</button></div><span class="terminal-counter" id="terminal-counter">00 CMDS</span><span class="keyboard-hint">Ctrl / ⌘ K 聚焦</span></div>
+        </section>
+        <a href="#notes-container" class="scroll-btn"><span>EXPLORE ARCHIVES</span><span class="arrow">↓</span></a>
+      </div>
+      <div class="hero-bottom mono"><span>LEARN. DERIVE. IMPLEMENT.</span><span><span id="note-count">02</span> NOTES INDEXED <span class="bottom-plus">+</span></span></div>
     </section>
 
-    <!-- 下滑后的博客/笔记区域 -->
-    <main id="notes-container" class="blog-section">
-        <aside class="sidebar">
-            <div class="sidebar-title">// DIRECTORY</div>
-            <ul class="note-list" id="note-list"></ul>
+    <section id="notes-container" class="archives" aria-label="笔记归档">
+      <div class="section-heading"><div><p class="eyebrow mono">01 / KNOWLEDGE ARCHIVE</p><h2>Notes &amp; research<span class="cyan">.</span></h2></div><span class="archive-caption mono">从推导，到实现。</span></div>
+      <div class="blog-section">
+        <aside class="sidebar" aria-label="笔记目录">
+          <div class="sidebar-title mono"><span>// DIRECTORY</span><span id="directory-count">02</span></div>
+          <p class="directory-path mono">~/notes/</p>
+          <nav id="category-list" class="category-list" aria-label="笔记分类"></nav>
+          <ul id="note-list" class="note-list"></ul>
+          <section id="repositories-container" class="repository-section" aria-label="外联仓库">
+            <div class="sidebar-title mono"><span>// REPOSITORIES</span><span id="repository-status">01</span></div>
+            <ul id="repository-list" class="repository-list"></ul>
+            <p class="repository-caption">Pages 优先 · 源码兜底</p>
+          </section>
+          <div class="sidebar-foot mono"><span class="status-dot"></span> ALWAYS A WORK IN PROGRESS</div>
         </aside>
-        <article class="article-viewer">
-            <div id="markdown-content" class="markdown-body"></div>
+        <article class="article-viewer" aria-label="笔记正文">
+          <div class="article-toolbar mono"><span id="article-path">notes / note-1.md</span><div class="article-actions"><span id="article-meta"></span><button id="plain-mode" type="button" aria-pressed="false">纯文本</button></div></div>
+          <p id="render-status" class="render-status" role="status"></p>
+          <div id="markdown-content" class="markdown-body" aria-busy="false"></div>
+          <noscript><p>请开启 JavaScript 阅读交互式笔记。<a href="https://wizandred.github.io">访问原站</a></p></noscript>
         </article>
-    </main>
+      </div>
+    </section>
+  </main>
 
-    <script>
-        /* =========================================================
-         * 模块 1：配置你的笔记数据（支持直接内联或填写外部 .md 文件路径）
-         * ========================================================= */
-        const NOTES_DATA = [
-            {
-                id: "note-1",
-                title: "Information Bottleneck & Representation",
-                date: "2026-11-03",
-                tag: "Theory",
-                // 如果你在仓库新建了 posts/note1.md，只需写 file: "posts/note1.md"
-                content: `# Information Bottleneck & Parsimonious Representation
+  <footer class="site-footer mono"><a class="footer-brand" href="#top">&gt;_ wizandre</a><span>First principles. Open questions.</span><a href="#top">BACK TO TOP ↑</a></footer>
 
-在表示学习（Representation Learning）中，我们希望从高维观测数据 $X \\in \\mathbb{R}^D$ 中提取低维紧致特征 $Z \\in \\mathbb{R}^d$（其中 $d \\ll D$），使得 $Z$ 最大限度保留关于目标变量 $Y$ 的预测信息，同时剔除冗余噪声。
-
-## 1. 变分信息瓶颈 (Variational Information Bottleneck)
-
-信息瓶颈（IB）的目标函数定义为最大化互信息项与压缩正则项的权衡：
-
-$$
-\\mathcal{L}_{\\text{IB}}(\\theta) = I(Z; Y) - \\beta I(Z; X)
-$$
-
-其中 $\\beta > 0$ 为控制压缩率与任务表征能力的拉格朗日乘子。利用变分下界（Variational Lower Bound），我们可以将上式转化为可微分的损失函数：
-
-$$
-\\mathcal{L}_{\\text{VIB}} = \\mathbb{E}_{q_\\theta(z|x)} [\\log p_\\phi(y|z)] - \\beta \\, D_{\\text{KL}}\\left(q_\\theta(z|x) \\,\\|\\, r(z)\\right)
-$$
-
-> **核心直觉**：当编码分布 $q_\\theta(z|x)$ 趋向于先验分布 $r(z) = \\mathcal{N}(0, I)$ 时，特征空间满足最小充分统计量（Minimal Sufficient Statistic）性质。
-
-## 2. 编码率缩减 (Coding Rate Reduction)
-
-对于无监督与自监督场景，给定特征矩阵 $Z = [z_1, z_2, \\dots, z_m] \\in \\mathbb{R}^{d \\times m}$，在高斯失真度 $\\epsilon^2$ 下所需的平均比特数（Coding Rate）可由以下行列式解析表达：
-
-$$
-R(Z, \\epsilon) = \\frac{1}{2} \\log \\det \\left( I + \\frac{d}{m \\epsilon^2} Z Z^\\top \\right)
-$$
-
-\`\`\`python
-import torch
-
-def coding_rate(Z: torch.Tensor, eps: float = 0.1) -> torch.Tensor:
-    """计算特征矩阵 Z 的编码率 R(Z, eps)"""
-    m, d = Z.shape
-    I = torch.eye(d, device=Z.device)
-    cov = (d / (m * eps ** 2)) * (Z.T @ Z)
-    return 0.5 * torch.logdet(I + cov)
-\`\`\`
-`
-            },
-            {
-                id: "note-2",
-                title: "Optimization & Newton-Raphson Dynamics",
-                date: "2026-10-28",
-                tag: "Math",
-                content: `# Numerical Optimization in Logistic Regression
-
-考虑二分类对数几率回归，给定数据集 $\\{(x_i, y_i)\\}_{i=1}^N$，其中 $y_i \\in \\{0, 1\\}$，条件概率由 Sigmoid 函数给出：
-
-$$
-p(y_i = 1 \\mid x_i; w) = \\sigma(w^\\top x_i) = \\frac{1}{1 + e^{-w^\\top x_i}}
-$$
-
-## 二阶海森矩阵 (Hessian Matrix) 推导
-
-负对数似然损失函数（交叉熵）写为：
-
-$$
-\\ell(w) = -\\sum_{i=1}^N \\left[ y_i \\log \\mu_i + (1 - y_i) \\log(1 - \\mu_i) \\right], \\quad \\mu_i = \\sigma(w^\\top x_i)
-$$
-
-对其求一阶梯度 $\\nabla \\ell(w)$ 与二阶海森矩阵 $H(w) = \\nabla^2 \\ell(w)$：
-
-$$
-\\nabla \\ell(w) = X^\\top (\\mu - y), \\qquad H(w) = X^\\top S X
-$$
-
-其中对角权重矩阵 $S = \\text{diag}(\\mu_1(1-\\mu_1), \\dots, \\mu_N(1-\\mu_N))$ 正定，保证了目标函数严格凸性，牛顿法迭代更新公式即等价于迭代重加权最小二乘（IRLS）：
-
-$$
-w^{(t+1)} = w^{(t)} - \\left(X^\\top S^{(t)} X\\right)^{-1} X^\\top (\\mu^{(t)} - y)
-$$
-`
-            }
-        ];
-
-        /* =========================================================
-         * 模块 2：渲染笔记列表与 LaTeX 公式
-         * ========================================================= */
-        const noteListEl = document.getElementById('note-list');
-        const contentEl = document.getElementById('markdown-content');
-
-        async function loadNote(index) {
-            // 更新选中状态
-            document.querySelectorAll('.note-item').forEach((el, i) => {
-                el.classList.toggle('active', i === index);
-            });
-
-            const note = NOTES_DATA[index];
-            let rawMarkdown = note.content;
-
-            // 如果配置了外部 .md 文件路径，则通过 fetch 拉取仓库里的 .md 文件
-            if (note.file) {
-                try {
-                    const res = await fetch(note.file);
-                    rawMarkdown = await res.text();
-                } catch (e) {
-                    rawMarkdown = `# Error Loading File\n无法读取 \`${note.file}\`，请确认文件路径是否正确。`;
-                }
-            }
-
-            // 保护 LaTeX 公式不被 Marked.js 破坏下划线和星号
-            const mathBlocks = [];
-            const protectedMd = rawMarkdown.replace(/(\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$)/g, (match) => {
-                mathBlocks.push(match);
-                return `@@MATH_BLOCK_${mathBlocks.length - 1}@@`;
-            });
-
-            // 解析 Markdown
-            let html = marked.parse(protectedMd);
-
-            // 还原 LaTeX 块
-            html = html.replace(/@@MATH_BLOCK_(\d+)@@/g, (_, idx) => mathBlocks[Number(idx)]);
-            contentEl.innerHTML = html;
-
-            // 语法高亮
-            document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
-
-            // 渲染 KaTeX 数学公式
-            if (window.renderMathInElement) {
-                renderMathInElement(contentEl, {
-                    delimiters: [
-                        { left: '$$', right: '$$', display: true },
-                        { left: '$', right: '$', display: false }
-                    ],
-                    throwOnError: false
-                });
-            }
-        }
-
-        // 初始化左侧菜单
-        NOTES_DATA.forEach((note, index) => {
-            const li = document.createElement('li');
-            li.className = 'note-item';
-            li.innerHTML = `
-                <div class="note-item-title">${note.title}</div>
-                <div class="note-item-meta">[${note.tag}] · ${note.date}</div>
-            `;
-            li.onclick = () => loadNote(index);
-            noteListEl.appendChild(li);
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => loadNote(0), 100);
-        });
-
-        /* =========================================================
-         * 模块 3：炫彩科技感鼠标跟随粒子网络 (HTML5 Canvas)
-         * ========================================================= */
-        const canvas = document.getElementById('cyber-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles;
-        let hue = 185; // 初始青色色相
-
-        const mouse = { x: -1000, y: -1000, radius: 160 };
-
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-        });
-        window.addEventListener('mouseout', () => {
-            mouse.x = -1000;
-            mouse.y = -1000;
-        });
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            initParticles();
-        }
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 1.1;
-                this.vy = (Math.random() - 0.5) * 1.1;
-                this.size = Math.random() * 2 + 1;
-                this.colorOffset = Math.random() * 60;
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
-
-                // 鼠标交互：引力吸附 + 能量高亮
-                const dx = mouse.x - this.x;
-                const dy = mouse.y - this.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < mouse.radius) {
-                    const force = (mouse.radius - dist) / mouse.radius;
-                    this.x += (dx / dist) * force * 2.2;
-                    this.y += (dy / dist) * force * 2.2;
-                }
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `hsl(${(hue + this.colorOffset) % 360}, 100%, 65%)`;
-                ctx.fill();
-            }
-        }
-
-        function initParticles() {
-            const count = Math.min(Math.floor((width * height) / 11000), 130);
-            particles = Array.from({ length: count }, () => new Particle());
-        }
-
-        function animate() {
-            // 制造轻微拖尾流光感
-            ctx.fillStyle = 'rgba(7, 9, 14, 0.28)';
-            ctx.fillRect(0, 0, width, height);
-
-            hue = (hue + 0.35) % 360; // 动态流光变色
-
-            // 鼠标光晕中心
-            if (mouse.x > 0) {
-                const grad = ctx.createRadialGradient(mouse.x, mouse.y, 2, mouse.x, mouse.y, 180);
-                grad.addColorStop(0, `hsla(${hue}, 100%, 60%, 0.18)`);
-                grad.addColorStop(1, 'transparent');
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(mouse.x, mouse.y, 180, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-
-                // 粒子间神经网络连线
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    if (dist < 125) {
-                        const alpha = (1 - dist / 125) * 0.45;
-                        ctx.strokeStyle = `hsla(${(hue + particles[i].colorOffset) % 360}, 100%, 65%, ${alpha})`;
-                        ctx.lineWidth = 0.8;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                    }
-                }
-
-                // 粒子与鼠标的激光连线
-                const mDx = particles[i].x - mouse.x;
-                const mDy = particles[i].y - mouse.y;
-                const mDist = Math.sqrt(mDx * mDx + mDy * mDy);
-                if (mDist < mouse.radius) {
-                    const alpha = (1 - mDist / mouse.radius) * 0.85;
-                    ctx.strokeStyle = `hsla(${(hue + 40) % 360}, 100%, 70%, ${alpha})`;
-                    ctx.lineWidth = 1.2;
-                    ctx.beginPath();
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(mouse.x, mouse.y);
-                    ctx.stroke();
-                }
-            }
-            requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', resize);
-        resize();
-        animate();
-    </script>
+  <div id="toast" class="toast mono" role="status" hidden></div>
 </body>
 </html>
